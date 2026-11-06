@@ -1,0 +1,883 @@
+/* ===================================================================
+   JICHMA Enrolment — application stylesheet
+
+   Hand-written and committed. There is deliberately no build step:
+   the target host is Truehost shared cPanel, where npm and Node may not
+   exist. Editing this file and re-uploading it is the whole workflow.
+   =================================================================== */
+
+:root {
+    --green: #0b6b3a;
+    --green-dark: #08532d;
+    --green-light: #e8f4ed;
+    --red: #b00020;
+    --red-light: #fdeaed;
+    --amber: #8a5a00;
+    --amber-light: #fff5e0;
+    --blue: #10457f;
+    --blue-light: #e8f0fa;
+
+    --text: #1a1d21;
+    --muted: #5b6470;
+    --line: #d8dde3;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+
+    --radius: 8px;
+    --gap: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--green-dark); }
+
+/* ---------------------------------------------------------------- Nav */
+
+.navbar {
+    background: var(--green);
+    color: #fff;
+    border-bottom: 3px solid var(--green-dark);
+}
+
+.navbar-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand {
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1.05rem;
+    margin-right: 4px;
+}
+
+.nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    padding: 7px 11px;
+    border-radius: 6px;
+    font-size: 0.94rem;
+}
+
+.nav-links a:hover,
+.nav-links a:focus-visible { background: var(--green-dark); }
+
+.nav-user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.86rem;
+    flex-wrap: wrap;
+}
+
+.nav-user-name { font-weight: 600; }
+
+.nav-user-context {
+    background: rgba(255, 255, 255, 0.18);
+    padding: 3px 9px;
+    border-radius: 999px;
+}
+
+.nav-toggle {
+    display: none;
+    background: var(--green-dark);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.inline-form { display: inline; margin: 0; }
+
+/* -------------------------------------------------------------- Layout */
+
+.page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 22px 16px 60px;
+}
+
+.page-narrow { max-width: 620px; }
+
+.page-header { margin-bottom: 20px; }
+
+/* A header that carries its own primary action: the heading and the button
+   share the first line, and the subtitle drops below both. */
+.page-header--actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: 16px;
+}
+
+.page-header--actions h1 { margin: 0; }
+.page-header--actions .page-subtitle { flex: 1 0 100%; }
+
+.page-header h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+}
+
+.page-subtitle { margin: 0; color: var(--muted); }
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: var(--gap);
+}
+
+.card-title {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+}
+
+.grid { display: grid; gap: var(--gap); }
+.grid-2 { grid-template-columns: 1fr; }
+.grid-3 { grid-template-columns: 1fr; }
+
+@media (min-width: 760px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* -------------------------------------------------------------- Alerts */
+
+.alert {
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+    font-size: 0.94rem;
+}
+
+.alert-success { background: var(--green-light); border-color: #b8ddc7; color: var(--green-dark); }
+.alert-error   { background: var(--red-light);   border-color: #f2c2cb; color: var(--red); }
+.alert-info    { background: var(--blue-light);  border-color: #c3d7ee; color: var(--blue); }
+.alert-warning { background: var(--amber-light); border-color: #f0dcb0; color: var(--amber); }
+
+.alert-title { margin: 0 0 6px; font-weight: 600; }
+
+.alert-list { margin: 0; padding-left: 20px; }
+
+/* --------------------------------------------------------------- Forms */
+
+.field { margin-bottom: 15px; }
+
+.field label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.field input[type="text"],
+.field input[type="tel"],
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="date"],
+.field input[type="number"],
+.field input[type="search"],
+.field input[type="url"],
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 10px 11px;
+    border: 1px solid #b9c1cb;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 1rem;
+    background: #fff;
+    color: var(--text);
+}
+
+.field textarea { min-height: 76px; resize: vertical; }
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+    outline: 3px solid rgba(11, 107, 58, 0.25);
+    border-color: var(--green);
+}
+
+.field-inline {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.field-inline label { margin: 0; font-weight: 400; }
+
+.field-hint { margin: 5px 0 0; font-size: 0.83rem; color: var(--muted); }
+
+.field-error {
+    margin: 5px 0 0;
+    font-size: 0.85rem;
+    color: var(--red);
+    font-weight: 600;
+}
+
+.field.has-error input,
+.field.has-error select,
+.field.has-error textarea { border-color: var(--red); }
+
+.required-marker { color: var(--red); font-weight: 700; }
+
+/* Stands in for a <label> on the photograph group, where the control is a pair
+   of buttons rather than one input, so there is nothing to point a label at.
+   Styled identically to .field label so it does not read as disabled text. */
+.field-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+/* Hidden from sight but not from the accessibility tree or the keyboard. Used
+   for the real file input that the photograph buttons fill in, so the form
+   still submits normally without showing a second, confusing file field. */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* The "x/11" readout beside the NIN hint. */
+.nin-counter {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: #eef0f3;
+    border-radius: 10px;
+}
+
+input.is-complete + .field-hint .nin-counter,
+.nin-counter.is-complete { color: var(--green); background: var(--green-light); }
+
+/* Photograph buttons. */
+.photo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.photo-remove {
+    padding: 4px 0;
+    margin-top: 4px;
+    font-size: 0.88rem;
+}
+
+.photo-meta {
+    margin: 6px 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    word-break: break-all;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+fieldset {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 0 0 16px;
+}
+
+legend {
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0 6px;
+}
+
+.filters {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+    .filters { grid-template-columns: repeat(3, 1fr); }
+    .filters .filter-wide { grid-column: 1 / -1; }
+}
+
+/* ------------------------------------------------------------- Buttons */
+
+.btn {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font: inherit;
+    font-size: 0.94rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* The one action a Program User came here to take, so it is sized to read as
+   primary rather than as another toolbar button. */
+.btn-lg {
+    display: inline-block;
+    padding: 13px 22px;
+    font-size: 1.02rem;
+}
+
+.btn-primary { background: var(--green); color: #fff; }
+.btn-primary:hover { background: var(--green-dark); }
+
+.btn-secondary { background: #fff; color: var(--text); border-color: #b9c1cb; }
+.btn-secondary:hover { background: #f1f3f5; }
+
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { background: #8a0018; }
+
+.btn-link {
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+    padding: 6px 4px;
+}
+
+.btn-block { width: 100%; }
+
+.btn-sm { padding: 6px 11px; font-size: 0.86rem; }
+
+.btn[disabled], .btn.is-loading {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------- Table */
+
+/* How many rows the table holds, stated above it. */
+.result-count {
+    margin: 0 0 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.table-wrap {
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+table.data {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+table.data th,
+table.data td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+}
+
+table.data th {
+    background: #eef1f4;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+table.data tbody tr:last-child td { border-bottom: 0; }
+
+.cell-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.empty-state {
+    padding: 34px 18px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.empty-state p { margin: 0 0 10px; }
+.empty-state p:last-child { margin-bottom: 0; }
+
+/* -------------------------------------------------------------- Badges */
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.badge-draft { background: var(--amber-light); color: var(--amber); }
+.badge-submitted { background: var(--green-light); color: var(--green-dark); }
+.badge-active { background: var(--green-light); color: var(--green-dark); }
+.badge-inactive { background: var(--red-light); color: var(--red); }
+.badge-sensitive { background: var(--red-light); color: var(--red); }
+
+/* ------------------------------------------------------- Filter chips */
+
+/* Shown above a filtered count. The remove control is part of the chip
+   rather than a separate row of links so it is obvious that taking one
+   filter off leaves the others exactly as they were. */
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.filter-chips-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 11px;
+    border: 1px solid #b9c1cb;
+    border-radius: 999px;
+    background: #f1f3f5;
+    font-size: 0.85rem;
+}
+
+.chip-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #dfe3e8;
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.chip-remove:hover { background: var(--red-light); color: var(--red); }
+
+.chip-remove:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+}
+
+.chip-clear {
+    font-size: 0.85rem;
+    color: var(--blue);
+}
+
+/* --------------------------------------------------------- Pagination */
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 6px;
+    margin-top: 16px;
+    align-items: center;
+}
+
+/* The row count the links move between, kept on one line and pushed to the
+   left so the page links read as one group on the right. */
+.pagination-summary {
+    margin: 0 auto 0 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.pagination-pages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pagination a,
+.pagination span {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.pagination .is-current {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+    font-weight: 700;
+}
+
+.pagination .is-disabled { color: #9aa3ad; }
+
+/* The gap marker between distant page numbers: text, not a boxed control,
+   so it cannot be mistaken for a page that exists. */
+.pagination .is-ellipsis {
+    border-color: transparent;
+    background: transparent;
+    color: var(--muted);
+}
+
+/* --------------------------------------------------------------- Photo */
+
+.photo-frame {
+    width: 190px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #fafbfc;
+}
+
+.photo-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* The thumbnail doubles as the lightbox trigger. Resetting the button chrome is
+   what lets it keep the .photo-frame border, size and clipping; with JavaScript
+   off it is an ordinary box with a photograph in it. */
+.photo-zoom {
+    display: block;
+    padding: 0;
+    font: inherit;
+    cursor: zoom-in;
+}
+
+.photo-zoom img { cursor: zoom-in; }
+
+.photo-zoom:hover { border-color: var(--blue); }
+
+.photo-zoom:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+}
+
+.photo-hint {
+    margin: 8px 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* Lightbox overlay. Built by app.js, so the rules for it live here rather than
+   in the record template. The [hidden] rule matters: `display: flex` below would
+   otherwise beat the attribute's own display and leave the overlay covering the
+   page after it was closed. */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(12, 16, 22, 0.86);
+}
+
+.lightbox[hidden] { display: none; }
+
+.lightbox-image {
+    max-width: 92vw;
+    max-height: 88vh;
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.24); }
+
+.lightbox-close:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+}
+
+/* Stops the page behind the overlay scrolling under it. */
+body.has-lightbox { overflow: hidden; }
+
+.photo-missing {
+    padding: 22px 12px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.photo-preview {
+    margin-top: 10px;
+    max-width: 220px;
+}
+
+.photo-preview img {
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+/* --------------------------------------------------------------- Auth */
+
+.body-auth { background: var(--bg); }
+
+.auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.auth-card { width: 100%; max-width: 400px; }
+
+.auth-title { margin: 0; font-size: 1.4rem; }
+
+.auth-subtitle { margin: 4px 0 20px; color: var(--muted); font-size: 0.94rem; }
+
+/* ------------------------------------------------------ Misc utilities */
+
+.definition-list { margin: 0; }
+
+.definition-list dt {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    margin-top: 12px;
+}
+
+.definition-list dt:first-child { margin-top: 0; }
+
+.definition-list dd { margin: 2px 0 0; font-weight: 600; }
+
+.link-list { margin: 0; padding-left: 18px; }
+.link-list li { margin-bottom: 7px; }
+
+/* A bare list inside a table cell: no bullets, no indent, tight leading.
+   Used for the facilities under a ward on the locations screen. */
+.plain-list { list-style: none; margin: 0; padding: 0; }
+.plain-list li { margin-bottom: 2px; }
+.plain-list li:last-child { margin-bottom: 0; }
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.stat-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (min-width: 760px) {
+    .stat-row { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Three cards fill their row exactly. Left on the four-column default they
+   would leave an empty fourth column, which reads as a missing number. */
+.stat-row-3 { grid-template-columns: 1fr; }
+
+@media (min-width: 760px) {
+    .stat-row-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+.stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+}
+
+.stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1.1; }
+.stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+
+/* ------------------------------------------------------- Summary cards */
+
+/* The programme grid on the summary screen: one card per programme, three wide
+   on desktop, filling down to one column on a phone. */
+.programme-grid {
+    display: grid;
+    gap: var(--gap);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 760px) {
+    .programme-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.programme-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.programme-card-head .card-title { margin-bottom: 2px; }
+.programme-card-head .text-muted { margin: 0; }
+
+/* The programme cards' inner stats reuse .stat-row's grid but must not push a
+   standalone margin below them; the card's own padding handles the spacing. */
+.programme-card .stat-row { margin-bottom: 0; }
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
+
+.text-muted { color: var(--muted); }
+.text-small { font-size: 0.87rem; }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.nowrap { white-space: nowrap; }
+
+.inline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.progress-track {
+    height: 8px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--green);
+    width: 0;
+}
+
+/* -------------------------------------------------------------- Mobile */
+
+@media (max-width: 719px) {
+    .nav-toggle { display: block; margin-left: auto; }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+        order: 3;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nav-links.is-open { display: flex; }
+
+    .nav-user {
+        margin-left: 0;
+        order: 2;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    table.data thead { display: none; }
+
+    table.data tr {
+        display: block;
+        border-bottom: 2px solid var(--line);
+        padding: 8px 0;
+    }
+
+    table.data td {
+        display: block;
+        border: 0;
+        padding: 4px 12px;
+    }
+
+    table.data td::before {
+        content: attr(data-label) ": ";
+        font-weight: 600;
+        color: var(--muted);
+        font-size: 0.82rem;
+    }
+
+    .photo-frame { width: 140px; }
+}
+
+@media print {
+    .navbar, .form-actions, .pagination, .toolbar { display: none; }
+
+    /* The list screen's filter form and header action no longer live inside
+       .toolbar, so they are named directly: a printed page should carry the
+       records and their count, not the controls that selected them. */
+    form.filters, .page-header--actions .btn { display: none; }
+    body { background: #fff; }
+}

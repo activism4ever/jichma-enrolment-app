@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <!-- 32 bytes, base64 encoded, matching the aes-256-cbc default cipher. -->
+        <env name="APP_KEY" value="base64:dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQ="/>
+        <env name="APP_URL" value="http://localhost"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="CACHE_STORE" value="array"/>
+        <!-- Tests run against real MySQL, not SQLite. The duplicate-NIN rule
+             depends on a MySQL unique index whose behaviour with NULL values
+             differs from SQLite's, so testing on SQLite would give false
+             confidence about the one rule that matters most. -->
+        <env name="DB_CONNECTION" value="mysql"/>
+        <env name="DB_HOST" value="127.0.0.1"/>
+        <env name="DB_PORT" value="3306"/>
+        <env name="DB_DATABASE" value="enrolment_test"/>
+        <env name="DB_USERNAME" value="enrolment"/>
+        <env name="DB_PASSWORD" value="enrolment_local_dev"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="FILESYSTEM_DISK" value="private"/>
+        <!-- Photos written during tests must never reach the real
+             storage/app/private/photos directory. -->
+        <env name="HASH_DRIVER" value="argon2id"/>
+        <env name="ARGON2_MEMORY" value="8192"/>
+        <env name="ARGON2_THREADS" value="1"/>
+        <env name="ARGON2_TIME" value="1"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="SESSION_IDLE_MINUTES" value="30"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+    </php>
+</phpunit>
