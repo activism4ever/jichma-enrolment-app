@@ -1,4 +1,4 @@
-{{-- Single flash-message component, used by every view.
+{{-- Single flash-message partial, used by every view.
 
      Two success keys, deliberately not one. `status` is the ordinary "saved" or
      "done" message and can be flashed by any of a dozen controllers.
@@ -6,26 +6,27 @@
      the green "Registration submitted" banner can only be produced by a
      submission that has just happened — nothing else can put that wording on
      screen, and it lives for exactly one request, which is what makes "only
-     right after submission" true rather than a thing to remember. --}}
+     right after submission" true rather than a thing to remember.
+
+     The markup now comes from components/ui/alert.blade.php. The session keys,
+     the two success banners and both ARIA roles are unchanged. --}}
 @if (session('submitted'))
-    <div class="alert alert-success" role="status">{{ session('submitted') }}</div>
+    <x-ui.alert variant="success" role="status" :message="session('submitted')" />
 @endif
 
 @if (session('status'))
-    <div class="alert alert-success" role="status">{{ session('status') }}</div>
+    <x-ui.alert variant="success" role="status" :message="session('status')" />
 @endif
 
 @if (session('error'))
-    <div class="alert alert-error" role="alert">{{ session('error') }}</div>
+    <x-ui.alert variant="error" role="alert" :message="session('error')" />
 @endif
 
 @if ($errors->any())
-    <div class="alert alert-error" role="alert">
-        <p class="alert-title">Please correct the following:</p>
-        <ul class="alert-list">
-            @foreach ($errors->all() as $message)
-                <li>{{ $message }}</li>
-            @endforeach
-        </ul>
-    </div>
+    <x-ui.alert
+        variant="error"
+        role="alert"
+        title="Please correct the following:"
+        :messages="$errors->all()"
+    />
 @endif

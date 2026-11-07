@@ -25,6 +25,30 @@
 
     --radius: 8px;
     --gap: 16px;
+
+    /* Phase 2A design foundation. Additive: every existing token above keeps
+       its name and value, so the current pages render exactly as before. */
+    --radius-sm: 6px;
+    --radius-lg: 12px;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+
+    --font-xs: 12px;
+    --font-sm: 14px;
+    --font-md: 16px;
+    --font-lg: 18px;
+    --font-xl: 24px;
+    --font-2xl: 30px;
+
+    --focus-ring: 0 0 0 3px rgba(11, 107, 58, 0.35);
+    --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.10);
+    --shadow-2: 0 4px 12px rgba(16, 24, 40, 0.10);
+    --transition: 150ms ease;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -40,6 +64,46 @@ body {
 }
 
 a { color: var(--green-dark); }
+
+/* Visible only while focused. It sits before the header so the first Tab
+   lands on it, then moves focus into the main landmark. */
+.skip-link {
+    position: absolute;
+    left: 8px;
+    top: -72px;
+    z-index: 1100;
+    padding: 10px 14px;
+    border: 2px solid var(--green);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    color: var(--green-dark);
+    font-weight: 700;
+    text-decoration: none;
+    transition: top var(--transition);
+}
+
+.skip-link:focus {
+    top: 8px;
+}
+
+/* A single keyboard focus treatment for controls that did not have one.
+   The more specific input/select/textarea and lightbox rules below keep
+   their existing outlines. */
+:where(a, button, input, select, textarea):focus-visible {
+    outline: 3px solid rgba(11, 107, 58, 0.35);
+    outline-offset: 2px;
+}
+
+/* Mouse users do not need a ring when the main landmark receives focus.
+   Keyboard users moving here from the skip link do: use the palette green at
+   full strength for contrast against the page background, inset so the
+   full-width landmark cannot clip the indicator at the viewport edges. */
+main:focus { outline: none; }
+
+main:focus-visible {
+    outline: 3px solid var(--green);
+    outline-offset: -3px;
+}
 
 /* ---------------------------------------------------------------- Nav */
 
@@ -80,10 +144,23 @@ a { color: var(--green-dark); }
     padding: 7px 11px;
     border-radius: 6px;
     font-size: 0.94rem;
+    transition: background var(--transition), box-shadow var(--transition);
 }
 
 .nav-links a:hover,
 .nav-links a:focus-visible { background: var(--green-dark); }
+
+/* The current section is marked server-side with aria-current, so the state
+   survives JavaScript being unavailable and is announced by screen readers. */
+.nav-links a[aria-current="page"] {
+    background: var(--green-dark);
+    box-shadow: inset 0 -3px 0 #fff;
+    font-weight: 700;
+}
+
+.navbar a:focus-visible {
+    outline-color: #fff;
+}
 
 .nav-user {
     margin-left: auto;
@@ -109,6 +186,7 @@ a { color: var(--green-dark); }
     border: 0;
     border-radius: 6px;
     padding: 8px 12px;
+    min-height: 40px;
     font-size: 0.9rem;
     cursor: pointer;
 }
@@ -143,9 +221,45 @@ a { color: var(--green-dark); }
 .page-header h1 {
     margin: 0 0 4px;
     font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
 }
 
-.page-subtitle { margin: 0; color: var(--muted); }
+.page-subtitle {
+    margin: 0;
+    max-width: 78ch;
+    color: var(--muted);
+}
+
+/* The page-header component keeps its actions in a wrapper so the title,
+   action group and subtitle can share the existing --actions flex row. */
+.page-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.breadcrumbs {
+    margin-bottom: 6px;
+    font-size: var(--font-sm);
+    color: var(--muted);
+}
+
+.breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.breadcrumbs li + li::before {
+    content: "/";
+    margin-right: 6px;
+    color: var(--line);
+}
 
 .card {
     background: var(--card);
@@ -153,11 +267,38 @@ a { color: var(--green-dark); }
     border-radius: var(--radius);
     padding: 18px;
     margin-bottom: var(--gap);
+    box-shadow: var(--shadow-1);
 }
 
 .card-title {
     margin: 0 0 12px;
     font-size: 1.05rem;
+    line-height: 1.3;
+}
+
+.card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px 16px;
+    margin-bottom: 12px;
+}
+
+.card-heading { min-width: 0; }
+
+.card-head .card-title { margin-bottom: 0; }
+
+.card-description {
+    margin: 4px 0 0;
+    font-size: var(--font-sm);
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
 
 .grid { display: grid; gap: var(--gap); }
@@ -248,6 +389,14 @@ a { color: var(--green-dark); }
 .field.has-error input,
 .field.has-error select,
 .field.has-error textarea { border-color: var(--red); }
+
+.field input:disabled,
+.field select:disabled,
+.field textarea:disabled {
+    background: #f1f3f5;
+    color: var(--muted);
+    cursor: not-allowed;
+}
 
 .required-marker { color: var(--red); font-weight: 700; }
 
@@ -404,6 +553,7 @@ legend {
 
 .table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -449,6 +599,8 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 .empty-state p { margin: 0 0 10px; }
 .empty-state p:last-child { margin-bottom: 0; }
 
+.empty-state-actions { margin-top: 12px; }
+
 /* -------------------------------------------------------------- Badges */
 
 .badge {
@@ -465,6 +617,7 @@ table.data tbody tr:last-child td { border-bottom: 0; }
 .badge-active { background: var(--green-light); color: var(--green-dark); }
 .badge-inactive { background: var(--red-light); color: var(--red); }
 .badge-sensitive { background: var(--red-light); color: var(--red); }
+.badge-neutral { background: #eef1f4; color: var(--muted); }
 
 /* ------------------------------------------------------- Filter chips */
 
@@ -478,6 +631,7 @@ table.data tbody tr:last-child td { border-bottom: 0; }
     align-items: center;
     gap: 6px;
     margin-bottom: 10px;
+    grid-column: 1 / -1;
 }
 
 .filter-chips-label {
@@ -560,6 +714,20 @@ table.data tbody tr:last-child td { border-bottom: 0; }
     background: #fff;
     text-decoration: none;
     font-size: 0.9rem;
+}
+
+.pagination a {
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.pagination a:hover {
+    background: var(--green-light);
+    border-color: #b8ddc7;
+}
+
+.pagination a:focus-visible {
+    outline: 3px solid rgba(11, 107, 58, 0.35);
+    outline-offset: 2px;
 }
 
 .pagination .is-current {
@@ -829,6 +997,12 @@ body.has-lightbox { overflow: hidden; }
 /* -------------------------------------------------------------- Mobile */
 
 @media (max-width: 719px) {
+    .page { padding: 18px 12px 48px; }
+
+    .page-header h1 { font-size: 1.35rem; }
+
+    .card { padding: 16px; }
+
     .nav-toggle { display: block; margin-left: auto; }
 
     .nav-links {
@@ -841,12 +1015,21 @@ body.has-lightbox { overflow: hidden; }
 
     .nav-links.is-open { display: flex; }
 
+    .nav-links a { padding: 10px 12px; }
+
     .nav-user {
         margin-left: 0;
         order: 2;
         width: 100%;
         justify-content: space-between;
     }
+
+    .pagination { gap: 8px; }
+
+    .pagination-summary { flex: 1 0 100%; }
+
+    .pagination a,
+    .pagination span { padding: 8px 11px; }
 
     table.data thead { display: none; }
 
@@ -873,11 +1056,23 @@ body.has-lightbox { overflow: hidden; }
 }
 
 @media print {
-    .navbar, .form-actions, .pagination, .toolbar { display: none; }
+    .navbar, .form-actions, .pagination, .toolbar, .skip-link { display: none; }
 
     /* The list screen's filter form and header action no longer live inside
        .toolbar, so they are named directly: a printed page should carry the
        records and their count, not the controls that selected them. */
     form.filters, .page-header--actions .btn { display: none; }
     body { background: #fff; }
+}
+
+/* Respect the operating-system preference. The interface has very little
+   motion, so this only removes the new hover/focus transitions and any
+   future non-essential animation. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

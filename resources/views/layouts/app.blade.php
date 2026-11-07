@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
 @auth
     <header class="navbar">
         <div class="navbar-inner">
@@ -18,24 +20,47 @@
                 Menu
             </button>
 
-            <nav id="primary-nav" class="nav-links" data-nav-panel>
-                <a href="{{ route('dashboard') }}">Dashboard</a>
-                <a href="{{ route('programme-summary.index') }}">Programme Summary</a>
-                <a href="{{ route('enrolees.index') }}">Enrolees</a>
+            <nav id="primary-nav" class="nav-links" data-nav-panel aria-label="Primary">
+                <x-ui.nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    Dashboard
+                </x-ui.nav-link>
+
+                <x-ui.nav-link :href="route('programme-summary.index')" :active="request()->routeIs('programme-summary.*')">
+                    Programme Summary
+                </x-ui.nav-link>
+
+                <x-ui.nav-link :href="route('enrolees.index')" :active="request()->routeIs('enrolees.*')">
+                    Enrolees
+                </x-ui.nav-link>
+
                 @can('viewAny', App\Models\User::class)
-                    <a href="{{ route('admin.users.index') }}">Users</a>
+                    <x-ui.nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                        Users
+                    </x-ui.nav-link>
                 @endcan
+
                 @can('viewAny', App\Models\Program::class)
-                    <a href="{{ route('admin.programs.index') }}">Programmes</a>
+                    <x-ui.nav-link :href="route('admin.programs.index')" :active="request()->routeIs('admin.programs.*')">
+                        Programmes
+                    </x-ui.nav-link>
                 @endcan
+
                 @can('export', App\Models\Enrolee::class)
-                    <a href="{{ route('admin.exports.index') }}">Export</a>
+                    <x-ui.nav-link :href="route('admin.exports.index')" :active="request()->routeIs('admin.exports.*')">
+                        Export
+                    </x-ui.nav-link>
                 @endcan
+
                 @can('viewAny', App\Models\AuditLog::class)
-                    <a href="{{ route('admin.audit.index') }}">Audit log</a>
+                    <x-ui.nav-link :href="route('admin.audit.index')" :active="request()->routeIs('admin.audit.*')">
+                        Audit log
+                    </x-ui.nav-link>
                 @endcan
+
                 @can('importLocations', App\Models\Lga::class)
-                    <a href="{{ route('admin.locations.index') }}">Locations</a>
+                    <x-ui.nav-link :href="route('admin.locations.index')" :active="request()->routeIs('admin.locations.*')">
+                        Locations
+                    </x-ui.nav-link>
                 @endcan
             </nav>
 
@@ -51,7 +76,7 @@
     </header>
 @endauth
 
-<main class="page">
+<main id="main-content" class="page" tabindex="-1">
     @include('partials.flash')
 
     @yield('content')
