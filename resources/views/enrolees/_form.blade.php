@@ -30,27 +30,33 @@
 @endphp
 
 @if ($isSubmitted)
-    <div class="alert alert-warning">
+    <x-ui.alert variant="warning">
         This record was submitted on {{ $enrolee->submitted_at?->format('j M Y, H:i') }}.
         Saving a change here is recorded in the audit log.
-    </div>
+    </x-ui.alert>
 @endif
 
 <form method="POST"
       action="{{ $mode === 'create' ? route('enrolees.store') : route('enrolees.update', $enrolee) }}"
       enctype="multipart/form-data"
+      class="enrollee-form"
       data-disable-on-submit>
     @csrf
 
-    <fieldset>
+    <p class="form-required-note">
+        <span class="required-marker" aria-hidden="true">*</span> Required field
+    </p>
+
+    <fieldset class="enrollee-form-section enrollee-form-section--identity">
         <legend>Identity</legend>
+        <p class="section-hint">The enrollee's name and personal details, as they appear on their identification.</p>
 
         @if ($mode === 'edit')
             {{-- A record's program is fixed at creation: moving a submitted
                  registration would rewrite what was attested. --}}
-            <p class="field-hint">
+            <p class="context-note">
                 Program: <strong>{{ $enrolee->program?->code }}</strong>
-                {{ $enrolee->program?->name }}
+                <span class="text-muted">{{ $enrolee->program?->name }}</span>
             </p>
         @elseif ($isAdmin)
             <div class="field {{ $errors->has('program_id') ? 'has-error' : '' }}">
@@ -69,12 +75,12 @@
                 @error('program_id') <p class="field-error">{{ $message }}</p> @enderror
             </div>
         @else
-            <p class="field-hint">
+            <p class="context-note">
                 Registering into <strong>{{ auth()->user()->program?->code }}</strong>.
             </p>
         @endif
 
-        <div class="grid grid-3">
+        <div class="grid grid-3 enrollee-form-grid">
             <div class="field {{ $errors->has('surname') ? 'has-error' : '' }}">
                 <label for="surname">
                     Surname <span class="required-marker" aria-hidden="true">*</span>
@@ -104,7 +110,7 @@
             </div>
         </div>
 
-        <div class="grid grid-3">
+        <div class="grid grid-3 enrollee-form-grid">
             <div class="field {{ $errors->has('gender') ? 'has-error' : '' }}">
                 <label for="gender">
                     Gender <span class="required-marker" aria-hidden="true">*</span>
@@ -165,8 +171,9 @@
         </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="enrollee-form-section enrollee-form-section--contact">
         <legend>Contact and identification</legend>
+        <p class="section-hint">How the enrollee can be reached and uniquely identified.</p>
 
         {{-- Full width on purpose: these two inputs are long, and the NIN counter
              needs room beside its hint. Half-width columns truncated on a phone. --}}
@@ -212,7 +219,7 @@
         </div>
     </fieldset>
 
-    <fieldset data-cascade>
+    <fieldset class="enrollee-form-section enrollee-form-section--location" data-cascade>
         <legend>Location</legend>
 
         <p class="field-hint">
@@ -220,7 +227,7 @@
             when you save, so a mismatched combination cannot be stored.
         </p>
 
-        <div class="grid grid-3">
+        <div class="grid grid-3 enrollee-form-grid">
             <div class="field {{ $errors->has('lga_id') ? 'has-error' : '' }}">
                 <label for="lga_id">
                     Local Government Area <span class="required-marker" aria-hidden="true">*</span>
@@ -275,14 +282,15 @@
     {{-- data-has-existing-photo is what makes "Remove / change photo" appear
      immediately on a record that already holds one, instead of waiting for the
      user to pick a new file. --}}
-    <fieldset data-photo-picker @if ($enrolee->hasPhoto()) data-has-existing-photo @endif>
+    <fieldset class="enrollee-form-section enrollee-form-section--photo"
+              data-photo-picker @if ($enrolee->hasPhoto()) data-has-existing-photo @endif>
         <legend>
             Passport photograph
             <span class="required-marker" aria-hidden="true">*</span>
         </legend>
 
-        <div class="field {{ $errors->has('photo') ? 'has-error' : '' }}">
-            <span class="field-label">
+        <div class="field enrollee-photo-field {{ $errors->has('photo') ? 'has-error' : '' }}">
+            <span class="field-label" id="photo-label">
                 Photograph <span class="required-marker" aria-hidden="true">*</span>
             </span>
 
@@ -292,22 +300,23 @@
                  unavailable the input stays usable, so the form degrades to a
                  plain file field instead of silently dropping the photo. --}}
             <input id="photo" type="file" name="photo" accept="image/jpeg,image/png"
-                   class="visually-hidden" data-photo-input>
+                   class="visually-hidden" data-photo-input
+                   aria-labelledby="photo-label" aria-describedby="photo-hint photo-error">
 
             <div class="photo-actions">
                 {{-- capture="user" asks for the front camera, which is what a
                      passport photograph needs. app.js removes this button on a
                      device with no camera. --}}
                 <span class="photo-action" data-camera-wrapper>
-                    <button type="button" class="btn btn-secondary" data-photo-camera-trigger>
+                    <x-ui.button type="button" variant="secondary" data-photo-camera-trigger>
                         Take photo
-                    </button>
+                    </x-ui.button>
                 </span>
 
                 <span class="photo-action">
-                    <button type="button" class="btn btn-secondary" data-photo-file-trigger>
+                    <x-ui.button type="button" variant="secondary" data-photo-file-trigger>
                         Choose from files
-                    </button>
+                    </x-ui.button>
                 </span>
 
                 {{-- The two inputs the buttons open. Neither is inside the form's
@@ -320,17 +329,29 @@
                        data-photo-browser-input>
             </div>
 
-            <p class="field-hint">
+            <p class="field-hint" id="photo-hint">
                 JPG or PNG, 5&nbsp;MB maximum. Required in order to submit.
                 @if ($enrolee->hasPhoto())
                     A photograph is already on file; uploading a new one replaces it.
                 @endif
             </p>
-            @error('photo') <p class="field-error" data-photo-error>{{ $message }}</p> @enderror
+
+            {{-- Always present, even when the server has not reported an error:
+                 app.js writes client-side validation messages into this element.
+                 It stays hidden and empty until there is something to say. --}}
+            <p class="field-error enrollee-photo-error"
+               id="photo-error"
+               data-photo-error
+               role="alert"
+               aria-atomic="true"
+               @if (! $errors->has('photo')) hidden @endif>{{ $errors->first('photo') }}</p>
 
             @if ($enrolee->hasPhoto())
-                <div class="photo-frame mt-0">
-                    <img src="{{ route('enrolees.photo', $enrolee) }}" alt="Current photograph">
+                <div class="enrollee-current-photo">
+                    <p class="enrollee-current-photo-label">Current photograph</p>
+                    <div class="photo-frame mt-0">
+                        <img src="{{ route('enrolees.photo', $enrolee) }}" alt="Current photograph">
+                    </div>
                 </div>
             @endif
 
@@ -338,28 +359,28 @@
         </div>
     </fieldset>
 
-    <div class="form-actions">
+    <div class="form-actions enrollee-form-actions">
         {{-- Primary action. formaction sends these same fields to the submission
              endpoint, where every required field and the photograph are checked
              in full and the record is created already submitted. No
              formnovalidate: the browser's own checks run first, and app.js
              re-enables both buttons if the user cancels the confirmation. --}}
         @if ($canSubmit)
-            <button type="submit" class="btn btn-primary"
-                    formaction="{{ $submitAction }}"
-                    data-confirm-submit="Once submitted you cannot edit this record. Submit now?">
+            <x-ui.button type="submit" variant="primary"
+                         formaction="{{ $submitAction }}"
+                         data-confirm-submit="Once submitted you cannot edit this record. Submit now?">
                 <span data-submit-label>Submit registration</span>
-            </button>
+            </x-ui.button>
         @endif
 
-        <button type="submit" class="btn btn-secondary" formnovalidate>
+        <x-ui.button type="submit" variant="secondary" formnovalidate>
             <span data-submit-label>{{ $mode === 'create' ? 'Save draft' : 'Save changes' }}</span>
-        </button>
+        </x-ui.button>
 
         @if ($mode === 'create')
-            <a href="{{ route('enrolees.index') }}" class="btn btn-link">Cancel</a>
+            <x-ui.button :href="route('enrolees.index')" variant="link">Cancel</x-ui.button>
         @else
-            <a href="{{ route('enrolees.show', $enrolee) }}" class="btn btn-link">Cancel</a>
+            <x-ui.button :href="route('enrolees.show', $enrolee)" variant="link">Cancel</x-ui.button>
         @endif
     </div>
 </form>
