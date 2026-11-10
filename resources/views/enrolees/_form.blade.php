@@ -133,7 +133,7 @@
                 </label>
                 <input id="date_of_birth" type="date" name="date_of_birth" required
                        value="{{ old('date_of_birth', $enrolee->date_of_birth?->format('Y-m-d')) }}">
-                <p class="field-hint">Between 5 and 120 years old.</p>
+                <p class="field-hint">Between 0 and 120 years old.</p>
                 @error('date_of_birth') <p class="field-error">{{ $message }}</p> @enderror
             </div>
 

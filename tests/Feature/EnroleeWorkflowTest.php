@@ -241,12 +241,28 @@ test('a future date of birth is rejected on submit', function () {
     ]))->assertSessionHasErrors('date_of_birth');
 });
 
-test('an under-five date of birth is rejected on submit', function () {
+test('a date of birth for a child under five is accepted', function () {
     actingAsProgramUser();
 
+    $dateOfBirth = now()->subYears(2)->toDateString();
+
     $this->post(route('enrolees.store'), $this->validEnroleePayload([
-        'date_of_birth' => now()->subYears(2)->toDateString(),
-    ]))->assertSessionHasErrors('date_of_birth');
+        'date_of_birth' => $dateOfBirth,
+    ]))->assertSessionHasNoErrors();
+
+    expect(Enrolee::sole()->date_of_birth->toDateString())->toBe($dateOfBirth);
+});
+
+test('a newborn date of birth is accepted', function () {
+    actingAsProgramUser();
+
+    $dateOfBirth = now()->toDateString();
+
+    $this->post(route('enrolees.store'), $this->validEnroleePayload([
+        'date_of_birth' => $dateOfBirth,
+    ]))->assertSessionHasNoErrors();
+
+    expect(Enrolee::sole()->date_of_birth->toDateString())->toBe($dateOfBirth);
 });
 
 test('an unknown gender is rejected rather than silently dropped', function () {

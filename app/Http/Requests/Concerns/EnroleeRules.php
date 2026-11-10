@@ -225,18 +225,14 @@ trait EnroleeRules
     }
 
     /**
-     * Age must be plausible: not in the future, not absurdly old, and at least
-     * 5 years old. The lower bound exists because a beneficiary program that
-     * accepts infants under five is almost certainly a data-entry error, and
-     * because the same enrolee record would otherwise need silent corrections
-     * later.
+     * Age must be plausible: not in the future and not absurdly old. Age zero
+     * is valid, so a newborn can be registered on the day they are born.
      */
     protected function dateOfBirthRules(): array
     {
         return [
             'before_or_equal:today',
             'after:'.now()->subYears(120)->toDateString(),
-            'before_or_equal:'.now()->subYears(5)->toDateString(),
         ];
     }
 
