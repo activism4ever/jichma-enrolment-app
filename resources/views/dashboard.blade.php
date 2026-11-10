@@ -3,111 +3,108 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="page-header">
-        <h1>Welcome, {{ $user->name }}</h1>
-        <p class="page-subtitle">{{ $user->contextLabel() }}</p>
-    </div>
+    {{-- The page opens with who is signed in and what they may do. The actions
+         live in the header so the first screenful is one question, not a
+         toolbar: how many people are enrolled, and what to do next. --}}
+    <x-ui.page-header
+        :title="'Welcome, ' . $user->name"
+        :subtitle="$user->contextLabel()"
+    >
+        <x-slot:actions>
+            @can('create', App\Models\Enrolee::class)
+                <x-ui.button :href="route('enrolees.create')" variant="primary" size="lg">
+                    Register new enrolee
+                </x-ui.button>
+            @endcan
+
+            @can('viewAny', App\Models\Enrolee::class)
+                <x-ui.button :href="route('enrolees.index')" variant="primary">
+                    Browse enrolees
+                </x-ui.button>
+            @endcan
+
+            <x-ui.button :href="route('password.edit')" variant="secondary">
+                Change password
+            </x-ui.button>
+        </x-slot:actions>
+    </x-ui.page-header>
+
+    @cannot('create', App\Models\Enrolee::class)
+        {{-- Said once, rather than leaving the absence to be read as an
+             oversight or a broken link. --}}
+        <p class="text-muted text-small dashboard-readonly-note">
+            Your account is read-only, so you cannot register new enrolees.
+        </p>
+    @endcannot
 
     {{-- The three questions, in the order they get asked: how many, how many
          recently, and then what to do about it. No counts by status, per program
          or per account: the enrolee list already answers those, and a number
          here that the list cannot corroborate is a number nobody should trust. --}}
-    <div class="stat-row stat-row-3">
-        <div class="stat">
-            <div class="stat-value">{{ $totals['total'] }}</div>
-            <div class="stat-label">Total enrolees</div>
+    <section class="dashboard-overview" aria-labelledby="dashboard-overview-heading">
+        <h2 id="dashboard-overview-heading" class="visually-hidden">Enrolment overview</h2>
+
+        <div class="stat-row stat-row-3">
+            <x-ui.stat :value="$totals['total']" label="Total enrolees" />
+            <x-ui.stat :value="$totals['month']" label="Enrolled this month" />
+            <x-ui.stat :value="$totals['today']" label="Enrolled today" />
         </div>
-        <div class="stat">
-            <div class="stat-value">{{ $totals['month'] }}</div>
-            <div class="stat-label">Enrolled this month</div>
-        </div>
-        <div class="stat">
-            <div class="stat-value">{{ $totals['today'] }}</div>
-            <div class="stat-label">Enrolled today</div>
-        </div>
-    </div>
+    </section>
 
-    <div class="page-header">
-        @can('create', App\Models\Enrolee::class)
-            <a href="{{ route('enrolees.create') }}" class="btn btn-primary btn-lg">
-                Register new enrolee
-            </a>
-        @endcan
-
-        @can('viewAny', App\Models\Enrolee::class)
-            <a href="{{ route('enrolees.index') }}" class="btn btn-primary">
-                Browse enrolees
-            </a>
-        @endcan
-
-        <a href="{{ route('password.edit') }}" class="btn btn-secondary">
-            Change password
-        </a>
-
-        @cannot('create', App\Models\Enrolee::class)
-            {{-- Said once, rather than leaving the absence to be read as an
-                 oversight or a broken link. --}}
-            <p class="text-muted text-small">
-                Your account is read-only, so you cannot register new enrolees.
-            </p>
-        @endcannot
-    </div>
-
-    <div class="card">
-        <h2 class="card-title">Recent enrolees</h2>
-
+    <x-ui.card title="Recent enrolees">
         @if ($recent->isEmpty())
-            <p class="text-muted">No enrolees yet.</p>
+            <x-ui.empty-state title="No enrolees yet.">
+                <p>Recently enrolled people will appear here as they are registered.</p>
+            </x-ui.empty-state>
         @else
-            <div class="table-wrap">
-                <table class="data">
-                    <thead>
+            <x-ui.table class="dashboard-table" caption="Most recent enrolments">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        @if ($user->isAdmin())
+                            {{-- Only worth a column for an administrator,
+                                 whose totals span every program. For anyone
+                                 else it is the one program they already know
+                                 they are in, printed on every row. --}}
+                            <th>Program</th>
+                        @endif
+                        <th>Enrolled</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($recent as $enrolee)
                         <tr>
-                            <th>Name</th>
+                            <td data-label="Name">
+                                {{-- A record can have no name yet: created, then
+                                     left before anything was typed. It is still
+                                     an enrolment, so it is listed. --}}
+                                {{ $enrolee->full_name !== '' ? $enrolee->full_name : 'Unnamed enrolee' }}
+                            </td>
                             @if ($user->isAdmin())
-                                {{-- Only worth a column for an administrator,
-                                     whose totals span every program. For anyone
-                                     else it is the one program they already know
-                                     they are in, printed on every row. --}}
-                                <th>Program</th>
+                                <td data-label="Program">{{ $enrolee->program?->label() ?? '—' }}</td>
                             @endif
-                            <th>Enrolled</th>
-                            <th>Actions</th>
+                            <td data-label="Enrolled" class="text-muted nowrap">
+                                {{ $enrolee->created_at->diffForHumans() }}
+                            </td>
+                            <td data-label="Actions">
+                                @can('view', $enrolee)
+                                    <a href="{{ route('enrolees.show', $enrolee) }}">
+                                        View<span class="visually-hidden"> {{ $enrolee->full_name !== '' ? $enrolee->full_name : 'unnamed enrolee' }}</span>
+                                    </a>
+                                @endcan
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($recent as $enrolee)
-                            <tr>
-                                <td>
-                                    {{-- A record can have no name yet: created, then
-                                         left before anything was typed. It is still
-                                         an enrolment, so it is listed. --}}
-                                    {{ $enrolee->full_name !== '' ? $enrolee->full_name : 'Unnamed enrolee' }}
-                                </td>
-                                @if ($user->isAdmin())
-                                    <td>{{ $enrolee->program?->label() ?? '—' }}</td>
-                                @endif
-                                <td class="text-muted nowrap">
-                                    {{ $enrolee->created_at->diffForHumans() }}
-                                </td>
-                                <td>
-                                    @can('view', $enrolee)
-                                        <a href="{{ route('enrolees.show', $enrolee) }}">View</a>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    @endforeach
+                </tbody>
+            </x-ui.table>
         @endif
-    </div>
+    </x-ui.card>
 
     {{-- Not a metric: the answer to "why do these numbers stop where they do".
          The scope is the reason a Program User sees three and an administrator
          sees every program, so it belongs next to them. --}}
-    <div class="card">
-        <h2 class="card-title">Your access</h2>
+    <x-ui.card title="Your access">
         <dl class="definition-list">
             <dt>Role</dt>
             <dd>{{ $user->role->label() }}</dd>
@@ -118,5 +115,5 @@
             <dt>Last sign-in</dt>
             <dd>{{ $user->last_login_at?->format('j M Y, H:i') ?? '—' }}</dd>
         </dl>
-    </div>
+    </x-ui.card>
 @endsection

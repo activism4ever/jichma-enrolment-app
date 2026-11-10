@@ -261,6 +261,14 @@ main:focus-visible {
     color: var(--line);
 }
 
+/* The final crumb on the programme detail page is the page itself: it is
+   text, not another link, and the darker weight keeps it distinct without
+   relying on colour alone. Scoped so existing breadcrumbs are untouched. */
+.programme-summary-detail-header .breadcrumbs [aria-current="page"] {
+    color: var(--text);
+    font-weight: 600;
+}
+
 .card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -937,8 +945,9 @@ body.has-lightbox { overflow: hidden; }
 
 /* ------------------------------------------------------- Summary cards */
 
-/* The programme grid on the summary screen: one card per programme, three wide
-   on desktop, filling down to one column on a phone. */
+/* The programme grid on the summary screen: one card per programme. Two
+   columns at tablet width keep each card's three inner statistics legible;
+   the full three-column layout waits until there is room for it. */
 .programme-grid {
     display: grid;
     gap: var(--gap);
@@ -946,19 +955,35 @@ body.has-lightbox { overflow: hidden; }
 }
 
 @media (min-width: 760px) {
+    .programme-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1100px) {
     .programme-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 .programme-card-head {
     display: flex;
+    flex-wrap: wrap;
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 14px;
 }
 
-.programme-card-head .card-title { margin-bottom: 2px; }
+.programme-card-head > div { min-width: 0; }
+
+.programme-card-head .card-title {
+    margin-bottom: 2px;
+    overflow-wrap: anywhere;
+}
+
 .programme-card-head .text-muted { margin: 0; }
+.programme-card-head .btn { flex-shrink: 0; }
+
+/* The card's three figures share a narrow column, so a slightly smaller value
+   keeps five-digit totals inside the box at the three-column desktop width. */
+.programme-card .stat-value { font-size: 1.4rem; }
 
 /* The programme cards' inner stats reuse .stat-row's grid but must not push a
    standalone margin below them; the card's own padding handles the spacing. */
@@ -1302,4 +1327,44 @@ table.enrollee-table td { vertical-align: middle; }
     .enrollee-danger-zone { display: none; }
 
     .enrollee-form-section { box-shadow: none; }
+}
+
+/* ===================================================================
+   Phase 2C-1 — Dashboard and Programme Summary
+
+   Scoped to the three screens changed in this phase. The shared tokens,
+   components, tables, cards and responsive data-label behaviour keep their
+   existing definitions, so no other screen changes.
+   =================================================================== */
+
+/* The dashboard's read-only sentence sits directly under the page header,
+   where the unavailable action would otherwise have been. */
+.dashboard-readonly-note {
+    margin: 0 0 var(--space-4);
+}
+
+/* The summary filter form uses the same .filters grid as the enrolee list.
+   Remove the per-field bottom margin so the grid gap is the only spacing. */
+.programme-filters .field { margin-bottom: 0; }
+
+/* The page says what the totals cover; keep it close to the cards it
+   describes rather than letting the filter card's margin separate them. */
+.programme-scope-note {
+    margin: calc(var(--space-2) * -1) 0 var(--space-4);
+}
+
+/* On a narrow screen the programme card's title and its detail button wrap
+   onto separate lines instead of forcing the card wider than the viewport. */
+@media (max-width: 479px) {
+    .programme-card-head .btn { width: 100%; }
+
+    .programme-filters .form-actions .btn { width: 100%; }
+}
+
+/* Long names and programme labels are the only unbreakable values these two
+   tables show. Let them wrap inside the stacked mobile cell rather than push
+   the page sideways at 320px. */
+@media (max-width: 719px) {
+    .dashboard-table td,
+    .programme-breakdown td { overflow-wrap: anywhere; }
 }

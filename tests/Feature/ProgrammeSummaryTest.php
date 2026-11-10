@@ -70,7 +70,7 @@ function programmeCards($response): array
 function breakdownRows($response): array
 {
     preg_match_all(
-        '/<td>\s*(?:<span class="text-muted">)?([^<\n]+?)(?:<\/span>)?\s*<\/td>\s*<td>\s*([\d,]+)\s*<\/td>\s*<td>(.*?)<\/td>/s',
+        '/<td\b[^>]*>\s*(?:<span class="text-muted">)?([^<\n]+?)(?:<\/span>)?\s*<\/td>\s*<td\b[^>]*>\s*([\d,]+)\s*<\/td>\s*<td\b[^>]*>(.*?)<\/td>/s',
         $response->getContent(),
         $rows,
         PREG_SET_ORDER,
